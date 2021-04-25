@@ -43,6 +43,14 @@ namespace ExploreCalifornia
 
             app.UseAuthorization();
 
+            app.UseCors(builder =>
+            {
+                builder.WithOrigins("https://www.example.com")
+                    .AllowAnyHeader()
+                    .WithMethods("GET", "POST")
+                    .AllowCredentials();
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
