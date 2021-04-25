@@ -1,6 +1,37 @@
-﻿
+﻿var chatterName = 'Visitor';
 
+// Initialize the SignalR client.
+var connection = new signalR.HubConnectionBuilder()
+    .withUrl("/chatHub")
+    .build();
 
+connection.on('ReceiveMessage', renderMessage);
+
+connection.start()
+
+function showChatDialog() {
+    var dialogEl = document.getElementById('chatDialog');
+    dialogEl.style.display = 'block';
+}
+
+function sendMessage(text) {
+    if (text && text.length) {
+        connection.invoke('SendMessage', chatterName, text)
+    }
+}
+
+function ready() {
+    setTimeout(showChatDialog, 750);
+
+    var chatFormEl = document.getElementById('chatForm');
+    chatFormEl.addEventListener('submit', function(e){
+        e.preventDefault();
+
+        var text = e.target[0].value;
+        e.target[0].value = '';
+        sendMessage(text);
+    })
+}
 
 function renderMessage(name, time, message) {
     var nameSpan = document.createElement('span');
@@ -28,3 +59,5 @@ function renderMessage(name, time, message) {
     chatHistoryEl.appendChild(newItem);
     chatHistoryEl.scrollTop = chatHistoryEl.scrollHeight - chatHistoryEl.clientHeight;
 }
+
+document.addEventListener('DOMContentLoaded', ready);
