@@ -32,6 +32,8 @@ function onConnected() {
 
     var messageTextboxEl = document.getElementById('messageTextbox');
     messageTextboxEl.focus();
+
+    connection.invoke("SetName", chatterName);
 }
 
 function showChatDialog() {

@@ -33,5 +33,17 @@ namespace ExploreCalifornia.Services
 
             return Task.FromResult(foundRoom.Key);
         }
+
+        public Task SetRoomName(Guid roomId, string name)
+        {
+            if (!_roomInfo.ContainsKey(roomId))
+            {
+                throw new ArgumentException("Invalid room ID");
+            }
+
+            _roomInfo[roomId].Name = name;
+
+            return Task.CompletedTask;
+        }
     }
 }
