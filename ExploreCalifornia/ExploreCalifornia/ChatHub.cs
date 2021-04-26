@@ -50,6 +50,8 @@ namespace ExploreCalifornia
                 SentAt = DateTimeOffset.UtcNow
             };
 
+            await _chatRoomService.AddMessage(roomId, message);
+
             // Broadcast to all clients.
             await Clients.Group(roomId.ToString()).SendAsync(
                 "ReceiveMessage",

@@ -10,6 +10,21 @@ namespace ExploreCalifornia.Services
     {
         private readonly Dictionary<Guid, ChatRoom> _roomInfo = new Dictionary<Guid, ChatRoom>();
 
+        private readonly Dictionary<Guid, List<ChatMessage>> _messageHistory = 
+            new Dictionary<Guid, List<ChatMessage>>();
+
+        public Task AddMessage(Guid roomId, ChatMessage message)
+        {
+            if (!_messageHistory.ContainsKey(roomId))
+            {
+                _messageHistory[roomId] = new List<ChatMessage>();
+            }
+
+            _messageHistory[roomId].Add(message);
+
+            return Task.CompletedTask;
+        }
+
         public Task<Guid> CreateRoom(string connectionId)
         {
             var id = Guid.NewGuid();
@@ -19,6 +34,19 @@ namespace ExploreCalifornia.Services
             };
 
             return Task.FromResult(id);
+        }
+
+        public Task<IEnumerable<ChatMessage>> GetMessageHistory(Guid roomId)
+        {
+            _messageHistory.TryGetValue(roomId, out var messages);
+
+            messages = messages ?? new List<ChatMessage>();
+
+            var sortedMessages = messages.OrderBy(
+                x => x.SentAt)
+                .AsEnumerable();
+
+            return Task.FromResult(sortedMessages);
         }
 
         public Task<Guid> GetRoomForConnectionId(string connectionId)
