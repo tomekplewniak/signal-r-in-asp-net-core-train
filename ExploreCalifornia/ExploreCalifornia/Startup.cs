@@ -1,3 +1,4 @@
+using ExploreCalifornia.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,8 @@ namespace ExploreCalifornia
         {
             services.AddRazorPages();
             services.AddSignalR();
+
+            services.AddSingleton<IChatRoomService, InMemoryChatRoomService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,14 +45,6 @@ namespace ExploreCalifornia
             app.UseRouting();
 
             app.UseAuthorization();
-
-            app.UseCors(builder =>
-            {
-                builder.WithOrigins("https://www.example.com")
-                    .AllowAnyHeader()
-                    .WithMethods("GET", "POST")
-                    .AllowCredentials();
-            });
 
             app.UseEndpoints(endpoints =>
             {

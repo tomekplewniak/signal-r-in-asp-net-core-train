@@ -1,4 +1,5 @@
 ﻿using ExploreCalifornia.Models;
+using ExploreCalifornia.Services;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Threading.Tasks;
@@ -7,8 +8,22 @@ namespace ExploreCalifornia
 {
     public class ChatHub : Hub
     {
+        private readonly IChatRoomService _chatRoomService;
+
+        public ChatHub(IChatRoomService chatRoomService)
+        {
+            _chatRoomService = chatRoomService;
+        }
+
         public override async Task OnConnectedAsync()
         {
+            var roomId = await _chatRoomService.CreateRoom(
+                Context.ConnectionId);
+
+            await Groups.AddToGroupAsync(
+                Context.ConnectionId,
+                roomId.ToString());
+
             await Clients.Caller.SendAsync(
                 "ReceiveMessage",
                 "Explore California",
@@ -25,6 +40,9 @@ namespace ExploreCalifornia
 
         public async Task SendMessage(string name, string text)
         {
+            var roomId = await _chatRoomService.GetRoomForConnectionId(
+                Context.ConnectionId);
+
             var message = new ChatMessage()
             {
                 SenderName = name,
@@ -33,7 +51,7 @@ namespace ExploreCalifornia
             };
 
             // Broadcast to all clients.
-            await Clients.All.SendAsync(
+            await Clients.Group(roomId.ToString()).SendAsync(
                 "ReceiveMessage",
                 message.SenderName,
                 message.SentAt,
